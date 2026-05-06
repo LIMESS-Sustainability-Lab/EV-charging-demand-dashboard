@@ -413,7 +413,7 @@ local = [
     { name = "latentcurvemodel", version = "0.1.0", source = { editable = "../LatentCurveModel" } },
 ]
 prod = [
-    { name = "latentcurvemodel", version = "0.1.0", source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=41f83368b1e095397f7ef5f8aab966515fb2e309#41f83368b1e095397f7ef5f8aab966515fb2e309" } },
+    { name = "latentcurvemodel", version = "0.1.0", source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=1ecbead966a2ee8089854d2eadd7dec8d8ed0733#1ecbead966a2ee8089854d2eadd7dec8d8ed0733" } },
 ]
 
 [package.metadata]
@@ -429,7 +429,7 @@ dev = [
     { name = "ruff", specifier = ">=0.12.8" },
 ]
 local = [{ name = "latentcurvemodel", editable = "../LatentCurveModel" }]
-prod = [{ name = "latentcurvemodel", git = "ssh://****@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=41f83368b1e095397f7ef5f8aab966515fb2e309" }]
+prod = [{ name = "latentcurvemodel", git = "ssh://****@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=1ecbead966a2ee8089854d2eadd7dec8d8ed0733" }]
 
 [[package]]
 name = "charset-normalizer"
@@ -1618,7 +1618,7 @@ wheels = [
 [[package]]
 name = "latentcurvemodel"
 version = "0.1.0"
-source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=41f83368b1e095397f7ef5f8aab966515fb2e309#41f83368b1e095397f7ef5f8aab966515fb2e309" }
+source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=1ecbead966a2ee8089854d2eadd7dec8d8ed0733#1ecbead966a2ee8089854d2eadd7dec8d8ed0733" }
 resolution-markers = [
     "python_full_version >= '3.15'",
     "python_full_version == '3.14.*'",

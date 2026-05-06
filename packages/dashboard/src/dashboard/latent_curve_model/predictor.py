@@ -4,7 +4,7 @@ from latentcurvemodel import (
     settings as latentcurvemodel_settings,
 )
 
-latentcurvemodel_settings.postgres_connection_string = (
+latentcurvemodel_settings.POSTGRES_CONNECTION_STRING = (
     settings.POSTGRES_CONNECTION_STRING
 )
 predictor = ChargingProfilePredictor()

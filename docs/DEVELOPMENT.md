@@ -124,7 +124,7 @@ npm run watch
 dependency groups declared in the workspace `pyproject.toml`:
 
 - `--group prod` → installs the pinned commit from the private GitHub
-  repo. This is what Dokploy uses (see `nixpacks.toml`).
+  repo. This is what Dokploy uses (see `Dockerfile`).
 - `--group local` → installs `../LatentCurveModel` as an editable path
   dep. `make install` defaults to this.
 

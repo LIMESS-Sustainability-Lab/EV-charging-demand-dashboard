@@ -16,18 +16,6 @@ RUN mkdir -p /root/.ssh \
 
 WORKDIR /app
 
-# Dependency layer: cached on lockfile/pyproject changes only.
-COPY pyproject.toml uv.lock ./
-COPY packages/dashboard/pyproject.toml packages/dashboard/
-COPY packages/dash-spatial-prediction/pyproject.toml packages/dash-spatial-prediction/
-
-RUN --mount=type=secret,id=ssh_key \
-    --mount=type=cache,target=/root/.cache/uv \
-    install -m 600 /run/secrets/ssh_key /root/.ssh/id_ed25519 && \
-    uv sync --no-dev --frozen --group prod --no-install-project && \
-    rm /root/.ssh/id_ed25519
-
-# Application layer.
 COPY . .
 
 RUN --mount=type=secret,id=ssh_key \

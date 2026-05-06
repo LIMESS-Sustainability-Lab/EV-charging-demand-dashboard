@@ -1,0 +1,38 @@
+[project]
+name = "charging-demand-workspace"
+version = "0.0.0"
+requires-python = ">=3.13"
+dependencies = ["dashboard", "ruff>=0.12.8"]
+
+[tool.uv]
+config-settings = { editable_mode = "compat" }
+conflicts = [[{ group = "prod" }, { group = "local" }]]
+
+
+[tool.uv.workspace]
+members = ["packages/dash-spatial-prediction", "packages/dashboard"]
+
+
+[tool.uv.sources]
+latentcurvemodel = [
+    { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git", rev = "41f83368b1e095397f7ef5f8aab966515fb2e309", group = "prod" },
+    { path = "../LatentCurveModel", editable = true, group = "local" },
+]
+dash-spatial-prediction = { workspace = true }
+dashboard = { workspace = true }
+
+[dependency-groups]
+dev = ["mypy>=1.11", "pandas-stubs>=2.2", "ruff>=0.12.8"]
+prod = ["latentcurvemodel"]
+local = ["latentcurvemodel"]
+
+[tool.ruff]
+indent-width = 4
+line-length = 70
+
+[tool.ruff.lint.per-file-ignores]
+"*.interactive" = ["ALL"]
+
+[tool.mypy]
+ignore_missing_imports = true
+plugins = ["pydantic.mypy"]

@@ -15,7 +15,7 @@ members = ["packages/dash-spatial-prediction", "packages/dashboard"]
 
 [tool.uv.sources]
 latentcurvemodel = [
-    { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git", rev = "41f83368b1e095397f7ef5f8aab966515fb2e309", group = "prod" },
+    { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git", rev = "1ecbead966a2ee8089854d2eadd7dec8d8ed0733", group = "prod" },
     { path = "../LatentCurveModel", editable = true, group = "local" },
 ]
 dash-spatial-prediction = { workspace = true }

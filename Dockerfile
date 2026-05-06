@@ -21,16 +21,20 @@ COPY pyproject.toml uv.lock ./
 COPY packages/dashboard/pyproject.toml packages/dashboard/
 COPY packages/dash-spatial-prediction/pyproject.toml packages/dash-spatial-prediction/
 
-RUN --mount=type=ssh \
+RUN --mount=type=secret,id=ssh_key \
     --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-dev --frozen --group prod --no-install-project
+    install -m 600 /run/secrets/ssh_key /root/.ssh/id_ed25519 && \
+    uv sync --no-dev --frozen --group prod --no-install-project && \
+    rm /root/.ssh/id_ed25519
 
 # Application layer.
 COPY . .
 
-RUN --mount=type=ssh \
+RUN --mount=type=secret,id=ssh_key \
     --mount=type=cache,target=/root/.cache/uv \
-    uv sync --no-dev --frozen --group prod
+    install -m 600 /run/secrets/ssh_key /root/.ssh/id_ed25519 && \
+    uv sync --no-dev --frozen --group prod && \
+    rm /root/.ssh/id_ed25519
 
 ENV PATH="/app/.venv/bin:$PATH"
 EXPOSE 8050

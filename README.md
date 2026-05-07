@@ -1,6 +1,6 @@
 # Charging Demand Interactive Dashboard
 ![status](https://uptime-monitor.jakubzika.com/badge/charging-model-public/status)
-
+[![DOI](https://zenodo.org/badge/1231152215.svg)](https://doi.org/10.5281/zenodo.20071167)
 
 <!-- <img src="http://zenodo.org/badge/DOI/10.5281/zenodo.20069103.svg"/> -->
 

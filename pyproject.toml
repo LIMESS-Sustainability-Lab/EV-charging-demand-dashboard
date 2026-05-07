@@ -20,7 +20,7 @@ explicit = true
 
 [tool.uv.sources]
 latentcurvemodel = [
-    { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git", rev = "1e306295feddd7e681db87546d546d644bc4a313", group = "prod" },
+    { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git", rev = "7249125d591ef54c6174c1f0af855c5e1f195b3f", group = "prod" },
     { path = "../LatentCurveModel", editable = true, group = "local" },
 ]
 torch = { index = "pytorch-cpu" }

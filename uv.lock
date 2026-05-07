@@ -404,7 +404,7 @@ wheels = [
 
 [[package]]
 name = "charging-demand-workspace"
-version = "0.0.0"
+version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
     { name = "dashboard" },
@@ -421,7 +421,7 @@ local = [
     { name = "latentcurvemodel", version = "0.1.0", source = { editable = "../LatentCurveModel" } },
 ]
 prod = [
-    { name = "latentcurvemodel", version = "0.1.0", source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=1e306295feddd7e681db87546d546d644bc4a313#1e306295feddd7e681db87546d546d644bc4a313" } },
+    { name = "latentcurvemodel", version = "0.1.0", source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=7249125d591ef54c6174c1f0af855c5e1f195b3f#7249125d591ef54c6174c1f0af855c5e1f195b3f" } },
 ]
 
 [package.metadata]
@@ -437,7 +437,7 @@ dev = [
     { name = "ruff", specifier = ">=0.12.8" },
 ]
 local = [{ name = "latentcurvemodel", editable = "../LatentCurveModel" }]
-prod = [{ name = "latentcurvemodel", git = "ssh://****@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=1e306295feddd7e681db87546d546d644bc4a313" }]
+prod = [{ name = "latentcurvemodel", git = "ssh://****@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=7249125d591ef54c6174c1f0af855c5e1f195b3f" }]
 
 [[package]]
 name = "charset-normalizer"
@@ -1557,7 +1557,7 @@ wheels = [
 [[package]]
 name = "latentcurvemodel"
 version = "0.1.0"
-source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=1e306295feddd7e681db87546d546d644bc4a313#1e306295feddd7e681db87546d546d644bc4a313" }
+source = { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git?rev=7249125d591ef54c6174c1f0af855c5e1f195b3f#7249125d591ef54c6174c1f0af855c5e1f195b3f" }
 resolution-markers = [
     "python_full_version >= '3.15' and sys_platform != 'darwin'",
     "python_full_version >= '3.15' and sys_platform == 'darwin'",

@@ -1,6 +1,8 @@
 # Charging Demand Interactive Dashboard
-<img src="https://uptime-monitor.jakubzika.com/badge/charging-model-public/status"/>
+![status](https://uptime-monitor.jakubzika.com/badge/charging-model-public/status)
+![doi](http://zenodo.org/badge/DOI/10.5281/zenodo.20069103.svg>)
 
+<!-- <img src="http://zenodo.org/badge/DOI/10.5281/zenodo.20069103.svg"/> -->
 
 
 Interactive dashboard wrapping neural-net model for predicting EV charger demand in Prague.

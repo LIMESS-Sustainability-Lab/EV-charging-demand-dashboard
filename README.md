@@ -8,31 +8,20 @@ Interactive dashboard wrapping neural-net model for predicting EV charger demand
 
 ## Pages
 
-### Location prediction (`/interactive-map`)
+### Location prediction
 
-Pick a single point in Prague, a calendar slot (year / month / weekday),
-and a charger configuration (AC or DC, sibling counts). The page
-returns the model's mean hourly power curve for that day, the daily
-total in kWh, the peak day across the chosen year, and the latent
-profile mixture that produced the curve.
+This pages allows selecting a point in map, a time slot and charging point and charging station configuration. 
+The model then presents the estimated power consumption for the filled  parameters; together with predicted mixture of profiles and their contribution.
 
-### Compare locations (`/compare-locations`)
+### Compare locations
 
-Two side-by-side locations with the same time and charger settings,
-so the prediction differences are entirely due to spatial inputs. Each
-column shows its own power curve, daily total, and latent profile
-mixture. A second tab renders a feature-by-feature spatial diff
-(grouped by feature family, with an option to hide rows where A and B
-agree).
+Same as location prediction, but allows to compare two locations at once. For the same chosen time slot and charging popint and charging station.
 
-### Location prediction with uncertainty (`/sample-uncertainty`)
+### Location prediction with uncertainty
 
-Sampling around the picked point, with the
-disk radius and sample count both configurable. Each sample is run
-through the model and the page shows the hourly power curve as a
-mean with a 5-95% band, plus a histogram + KDE of the daily totals.
-Useful for gauging how sensitive the prediction is to small spatial
-shifts.
+Allows seleting a point in map, time slot, charging point and charging station, number of samples and radius. 
+
+To mitigate low spatial autocorrelation. It samples specified number of locations, which are then turned into predictions. Presents the predictions with uncertainty bound.
 
 ## Contributing
 

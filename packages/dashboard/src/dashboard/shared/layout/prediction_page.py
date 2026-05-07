@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from typing import Optional
 
 import dash_mantine_components as dmc
+from dash import dcc
 from dash_iconify import DashIconify
 
 
@@ -21,6 +22,7 @@ def PredictionPageShell(
     output_id: str,
     initial_tab: Optional[str] = None,
     extra_above_output=None,
+    sidebar_footer=None,
 ):
     selected = (
         initial_tab if initial_tab is not None else tabs[0].value
@@ -52,7 +54,17 @@ def PredictionPageShell(
     if extra_above_output is not None:
         main_children.append(extra_above_output)
     main_children.append(
-        dmc.Box(id=output_id, style={"flex": 1, "minHeight": 0})
+        dcc.Loading(
+            dmc.Box(id=output_id, style={"flex": 1, "minHeight": 0}),
+            type="circle",
+            color="#88BF49",
+            delay_show=150,
+            parent_style={
+                "flex": 1,
+                "minHeight": 0,
+                "display": "flex",
+            },
+        )
     )
 
     return dmc.Box(
@@ -66,6 +78,14 @@ def PredictionPageShell(
                             dmc.Box(sidebar_body, p="md"),
                             style={"flex": 1, "minHeight": 0},
                             type="auto",
+                        ),
+                        *(
+                            [
+                                dmc.Divider(),
+                                dmc.Box(sidebar_footer, p="md"),
+                            ]
+                            if sidebar_footer is not None
+                            else []
                         ),
                     ],
                     gap=0,

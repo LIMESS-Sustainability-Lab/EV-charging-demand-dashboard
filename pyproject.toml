@@ -13,11 +13,17 @@ conflicts = [[{ group = "prod" }, { group = "local" }]]
 members = ["packages/dash-spatial-prediction", "packages/dashboard"]
 
 
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
 [tool.uv.sources]
 latentcurvemodel = [
     { git = "ssh://git@github.com/LIMESS-Sustainability-Lab/Latent-curve-model-for-charging-demand.git", rev = "1e306295feddd7e681db87546d546d644bc4a313", group = "prod" },
     { path = "../LatentCurveModel", editable = true, group = "local" },
 ]
+torch = { index = "pytorch-cpu" }
 dash-spatial-prediction = { workspace = true }
 dashboard = { workspace = true }
 

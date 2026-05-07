@@ -21,6 +21,7 @@ app = dash.Dash(
     pages_folder="",  # router does discovery
     assets_folder=os.path.join(_here, "assets"),
 )
+app._favicon = "favicon.svg"  # type: ignore[assignment]
 
 register_pages()
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+from functools import lru_cache
 from typing import NamedTuple, Optional
 
 import altair as alt
@@ -8,7 +9,7 @@ import dash_mantine_components as dmc
 import dash_vega_components as dvc
 import numpy as np
 import pandas as pd
-from dash import Input, Output, callback, html
+from dash import Input, Output, State, callback, html
 from dash_iconify import DashIconify
 from dash_pydantic_form import ModelForm
 from latentcurvemodel import (
@@ -24,6 +25,10 @@ from dashboard.latent_curve_model.forms import (
     SamplingFormModel,
 )
 from dashboard.latent_curve_model.predictor import predictor as model
+from dashboard.shared.layout.prediction_page import (
+    PredictionPageShell,
+    Tab,
+)
 from dashboard.shared.utils import is_in_prague
 from dash_spatial_prediction import (
     Banner,
@@ -35,8 +40,13 @@ from dash_spatial_prediction import (
 
 MAP_ID = "su-map"
 OUTPUT_ID = "su-output"
+TABS_ID = "su-tabs"
 FORM_AIO_ID = "su-model"
 FORM_ID = "su-form"
+SUBMIT_ID = "su-submit"
+
+TAB_PREDICTION = "prediction"
+TAB_PREVIEW = "preview"
 
 EARTH_R_M = 6_371_000.0
 
@@ -141,21 +151,49 @@ def _disk_polygon(
     }
 
 
+def _form_fingerprint(parsed: SamplingFormModel) -> tuple:
+    # Hashable summary of every input that affects the prediction.
+    return (
+        round(parsed.loc.location.lat, 6),
+        round(parsed.loc.location.lng, 6),
+        int(parsed.sampling.radius_m),
+        int(parsed.sampling.n_samples),
+        parsed.charger.charging_type,
+        int(parsed.charger.n_ac_siblings),
+        int(parsed.charger.n_dc_siblings),
+        int(parsed.time.year),
+        parsed.time.month,
+        parsed.time.weekday,
+    )
 
 
-def _predict_many(parsed: SamplingFormModel, samples: list[Sample]):
+@lru_cache(maxsize=64)
+def _predict_cached(fp: tuple) -> tuple[np.ndarray, np.ndarray]:
+    (
+        lat,
+        lng,
+        radius_m,
+        n_samples,
+        charging_type,
+        n_ac,
+        n_dc,
+        year,
+        month_name,
+        weekday_name,
+    ) = fp
+    samples = _stratified_disk(lat, lng, radius_m, n_samples)
     requests = [
         PredictionRequest(
             spatial=Spatial(lon=s.lng, lat=s.lat),
             station=Station(
-                charging_type=parsed.charger.charging_type,
-                n_ac_siblings=parsed.charger.n_ac_siblings,
-                n_dc_siblings=parsed.charger.n_dc_siblings,
+                charging_type=charging_type,
+                n_ac_siblings=n_ac,
+                n_dc_siblings=n_dc,
             ),
             temporal=Temporal(
-                year=int(parsed.time.year),
-                month=MONTHS.index(parsed.time.month) + 1,
-                weekday=DAYS.index(parsed.time.weekday) + 1,
+                year=year,
+                month=MONTHS.index(month_name) + 1,
+                weekday=DAYS.index(weekday_name) + 1,
             ),
         )
         for s in samples
@@ -168,6 +206,10 @@ def _predict_many(parsed: SamplingFormModel, samples: list[Sample]):
     total_powers = np.asarray(total_powers).reshape(-1)
     curves = profiles * total_powers[:, None]
     return curves, curves.sum(axis=1)
+
+
+def _predict_many(parsed: SamplingFormModel):
+    return _predict_cached(_form_fingerprint(parsed))
 
 
 def _hourly_uncertainty_chart(curves: np.ndarray) -> html.Div:
@@ -441,105 +483,22 @@ def _initial_layers(parsed: SamplingFormModel) -> list[dict]:
 _DEFAULT_FORM = SamplingFormModel()
 
 
-layout = dmc.Box(
-    dmc.Group(
-        [
-            dmc.Stack(
-                [
-                    dmc.Title(
-                        "Location uncertainty", order=4, p="sm"
-                    ),
-                    dmc.Divider(),
-                    dmc.ScrollArea(
-                        dmc.Box(
-                            ModelForm(
-                                SamplingFormModel,
-                                aio_id=FORM_AIO_ID,
-                                form_id=FORM_ID,
-                            ),
-                            p="md",
-                        ),
-                        style={"flex": 1, "minHeight": 0},
-                        type="auto",
-                    ),
-                ],
-                gap=0,
-                h="100%",
-                style={
-                    "flex": "0 0 33.3333%",
-                    "backgroundColor": "var(--mantine-color-gray-1)",
-                    "borderRight": "1px solid var(--mantine-color-gray-3)",
-                    "boxShadow": "2px 0 6px rgba(0, 0, 0, 0.04)",
-                },
-            ),
-            dmc.Stack(
-                [
-                    dmc.Box(
-                        id=OUTPUT_ID,
-                        style={
-                            "flex": 1,
-                            "minHeight": 0,
-                            "overflow": "auto",
-                        },
-                    ),
-                    dmc.Divider(),
-                    dmc.Accordion(
-                        [
-                            dmc.AccordionItem(
-                                [
-                                    dmc.AccordionControl(
-                                        dmc.Group(
-                                            [
-                                                DashIconify(
-                                                    icon="tabler:map",
-                                                    width=18,
-                                                ),
-                                                dmc.Text(
-                                                    "Sample preview",
-                                                    fw="bold",
-                                                ),
-                                            ],
-                                            gap="xs",
-                                        )
-                                    ),
-                                    dmc.AccordionPanel(
-                                        InteractiveMap(
-                                            id=MAP_ID,
-                                            layers=_initial_layers(
-                                                _DEFAULT_FORM
-                                            ),
-                                            center=[
-                                                _DEFAULT_FORM.loc.location.lng,
-                                                _DEFAULT_FORM.loc.location.lat,
-                                            ],
-                                            zoom=15,
-                                            height="320px",
-                                        ),
-                                    ),
-                                ],
-                                value="map",
-                            ),
-                        ],
-                        id="su-map-accordion",
-                        value=None,
-                        persistence=True,
-                        persistence_type="session",
-                        persisted_props=["value"],
-                        m="sm",
-                    ),
-                ],
-                gap=0,
-                h="100%",
-                style={"flex": "1 1 auto", "minWidth": 0},
-            ),
-        ],
-        gap=0,
-        align="stretch",
-        wrap="nowrap",
-        h="100%",
-        style={"maxWidth": "1800px", "margin": "0 auto"},
+layout = PredictionPageShell(
+    sidebar_title="Location uncertainty",
+    sidebar_body=ModelForm(
+        SamplingFormModel, aio_id=FORM_AIO_ID, form_id=FORM_ID
     ),
-    style={"height": "calc(100dvh - 100px)"},
+    sidebar_footer=dmc.Button(
+        "Predict",
+        id=SUBMIT_ID,
+        fullWidth=True,
+    ),
+    tabs=[
+        Tab("Prediction", TAB_PREDICTION, "tabler:chart-line"),
+        Tab("Sample preview", TAB_PREVIEW, "tabler:map"),
+    ],
+    tabs_id=TABS_ID,
+    output_id=OUTPUT_ID,
 )
 
 
@@ -552,20 +511,29 @@ def _parse(form_data: dict) -> Optional[SamplingFormModel]:
         return None
 
 
-@callback(
-    Output(MAP_ID, "layers"),
-    Input(ModelForm.ids.main(FORM_AIO_ID, FORM_ID), "data"),
-)
-def _update_map(form_data: dict):
+def _preview_view(form_data: dict):
     parsed = _parse(form_data) or _DEFAULT_FORM
-    return _initial_layers(parsed)
+    return dmc.Box(
+        InteractiveMap(
+            id=MAP_ID,
+            layers=_initial_layers(parsed),
+            center=[
+                parsed.loc.location.lng,
+                parsed.loc.location.lat,
+            ],
+            zoom=15,
+            height="100%",
+        ),
+        style={
+            "height": "100%",
+            "padding": "var(--mantine-spacing-md)",
+        },
+    )
 
 
-@callback(
-    Output(OUTPUT_ID, "children"),
-    Input(ModelForm.ids.main(FORM_AIO_ID, FORM_ID), "data"),
-)
-def _render(form_data: dict):
+def _prediction_view(form_data: dict, clicks: Optional[int]):
+    if not clicks:
+        return Banner("Adjust the form, then click Run prediction.")
     parsed = _parse(form_data)
     if parsed is None:
         return Banner("fill in the form to see predictions")
@@ -573,14 +541,8 @@ def _render(form_data: dict):
         parsed.loc.location.lat, parsed.loc.location.lng
     ):
         return Banner("Selected location is outside Prague.")
-    samples = _stratified_disk(
-        parsed.loc.location.lat,
-        parsed.loc.location.lng,
-        parsed.sampling.radius_m,
-        parsed.sampling.n_samples,
-    )
     try:
-        curves, totals = _predict_many(parsed, samples)
+        curves, totals = _predict_many(parsed)
     except Exception as e:
         return Banner(f"prediction error\n{e}")
 
@@ -613,3 +575,15 @@ def _render(form_data: dict):
         h="100%",
         type="auto",
     )
+
+
+@callback(
+    Output(OUTPUT_ID, "children"),
+    Input(SUBMIT_ID, "n_clicks"),
+    Input(TABS_ID, "value"),
+    State(ModelForm.ids.main(FORM_AIO_ID, FORM_ID), "data"),
+)
+def _render(clicks: Optional[int], tab: str, form_data: dict):
+    if tab == TAB_PREVIEW:
+        return _preview_view(form_data)
+    return _prediction_view(form_data, clicks)

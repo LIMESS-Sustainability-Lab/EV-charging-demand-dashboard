@@ -11,6 +11,7 @@ class Route:
     module: str
     path: str
     name: str
+    index: bool = False
 
 
 ROUTES: list[Route] = [
@@ -18,6 +19,7 @@ ROUTES: list[Route] = [
         module="dashboard.latent_curve_model.pages.interactive_map",
         path="/interactive-map",
         name="Location prediction",
+        index=True,
     ),
     Route(
         module="dashboard.latent_curve_model.pages.compare_locations",
@@ -61,9 +63,11 @@ ROUTES: list[Route] = [
 def register_pages() -> None:
     for route in ROUTES:
         module = importlib.import_module(route.module)
+        # The index route also responds at `/` (Dash routes by `path`).
+        path = "/" if route.index else route.path
         dash.register_page(
             route.module,
-            path=route.path,
+            path=path,
             name=route.name,
             layout=getattr(module, "layout", None),
         )

@@ -23,6 +23,25 @@ app = dash.Dash(
 )
 app._favicon = "favicon.svg"  # type: ignore[assignment]
 
+app.index_string = """<!DOCTYPE html>
+<html>
+    <head>
+        {%metas%}
+        <title>{%title%}</title>
+        {%favicon%}
+        {%css%}
+        <script defer src="https://analytics.jakubzika.com/script.js" data-website-id="ff207730-eecb-4971-853a-33e588e541e3"></script>
+    </head>
+    <body>
+        {%app_entry%}
+        <footer>
+            {%config%}
+            {%scripts%}
+            {%renderer%}
+        </footer>
+    </body>
+</html>"""
+
 register_pages()
 
 # LIMESS brand palette. Mantine wants 10-entry lists keyed 0..9; the

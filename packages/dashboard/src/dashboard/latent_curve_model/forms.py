@@ -42,6 +42,7 @@ Year = Literal["2022", "2023", "2024", "2025"]
 
 
 ChargingType = Literal["AC", "DC"]
+HeatmapResolution = Literal["100", "250", "500", "1000"]
 
 
 class LocationSelection(BaseModel):
@@ -87,7 +88,7 @@ class SamplingSelection(BaseModel):
         16,
         ge=4,
         le=150,
-        description="Number of stratified samples drawn inside the disk.",
+        description="Number of Poisson-disk samples drawn inside the disk.",
     )
 
 
@@ -105,6 +106,23 @@ class CompareFormModel(BaseModel):
     location_b: LocationSelection = LocationSelection()
     time: TimeSelection = TimeSelection()
     charger: ChargerSelection = ChargerSelection()
+
+
+class HeatmapSelection(BaseModel):
+    target_step_m: HeatmapResolution = Field(
+        "250",
+        description="Heatmap grid spacing in metres.",
+    )
+    log_total_kwh: bool = Field(
+        False,
+        description="Show the daily total heatmap with logarithmic colour scale.",
+    )
+
+
+class HeatmapFormModel(BaseModel):
+    time: TimeSelection = TimeSelection()
+    charger: ChargerSelection = ChargerSelection()
+    heatmap: HeatmapSelection = HeatmapSelection()
 
 
 def to_form_model(comp: "CompareFormModel", side: str) -> FormModel:

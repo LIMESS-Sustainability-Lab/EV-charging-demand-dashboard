@@ -11,6 +11,8 @@ from dash_pydantic_form import ModelForm
 from latentcurvemodel import extract_charger_spatial_features
 
 from dashboard.latent_curve_model.charts import (
+    DC_POWER_AXIS_MAX,
+    POWER_AXIS_MAX,
     power_curve_chart,
     profile_mixture_chart,
 )
@@ -60,6 +62,11 @@ def _predict(side: FormModel):
 
 def _prediction_column(label: str, side: FormModel) -> dmc.Stack:
     header = dmc.Badge(label, size="lg", variant="filled")
+    y_axis_max = (
+        DC_POWER_AXIS_MAX
+        if side.charger.charging_type == "DC"
+        else POWER_AXIS_MAX
+    )
     try:
         result = _predict(side)
     except Exception as e:
@@ -73,7 +80,7 @@ def _prediction_column(label: str, side: FormModel) -> dmc.Stack:
             Card(
                 "tabler:bolt",
                 "Average hourly power",
-                power_curve_chart(result),
+                power_curve_chart(result, y_axis_max=y_axis_max),
             ),
             Card(
                 "tabler:sum",

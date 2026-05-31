@@ -165,7 +165,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   center = [14.4292, 50.0856],
   zoom = 13,
   height = "400px",
-  mapStyle = "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  mapStyle = "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
   setProps,
 }) => {
   const mapRef = useRef<MapRef | null>(null);
@@ -343,7 +343,7 @@ const InteractiveMap: React.FC<InteractiveMapProps> = ({
   center: [14.4292, 50.0856],
   zoom: 13,
   height: "400px",
-  mapStyle: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+  mapStyle: "https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
   clickedCoord: null,
   clickedFeature: null,
 };

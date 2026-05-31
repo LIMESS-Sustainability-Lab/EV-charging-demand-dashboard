@@ -20,6 +20,7 @@ PROFILE_COLORS = [
 # Fixed caps so the y-axis doesn't rescale as inputs change. Tuned to
 # envelop realistic worst-case predictions.
 POWER_AXIS_MAX = 10.0
+DC_POWER_AXIS_MAX = 35.0
 FRACTION_AXIS_MAX = 0.12
 
 
@@ -43,7 +44,11 @@ def _vega(chart: alt.Chart, identifier: str = "None") -> html.Div:
     )
 
 
-def power_curve_chart(result: PredictionResult) -> html.Div:
+def power_curve_chart(
+    result: PredictionResult,
+    *,
+    y_axis_max: float = POWER_AXIS_MAX,
+) -> html.Div:
     # Bars sum to the line: profile i's contribution at hour h is
     # `probs[i] * curve[h]`, so summing over profiles recovers `curve[h]`.
     n_hours = len(result.curve)
@@ -74,7 +79,7 @@ def power_curve_chart(result: PredictionResult) -> html.Div:
     y_shared = alt.Y(
         "kw:Q",
         title="kW",
-        scale=alt.Scale(domain=[0, POWER_AXIS_MAX]),
+        scale=alt.Scale(domain=[0, y_axis_max]),
     )
 
     bars = (
@@ -91,7 +96,7 @@ def power_curve_chart(result: PredictionResult) -> html.Div:
                 "kw:Q",
                 title="kW",
                 stack="zero",
-                scale=alt.Scale(domain=[0, POWER_AXIS_MAX]),
+                scale=alt.Scale(domain=[0, y_axis_max]),
             ),
             color=alt.Color(
                 "profile:N",
@@ -135,7 +140,11 @@ def power_curve_chart(result: PredictionResult) -> html.Div:
     return _vega(chart)
 
 
-def peak_day_comparison_chart(result: PredictionResult) -> html.Div:
+def peak_day_comparison_chart(
+    result: PredictionResult,
+    *,
+    y_axis_max: float = POWER_AXIS_MAX,
+) -> html.Div:
     df = pd.DataFrame(
         [
             {"hour": i, "kw": float(v), "profile": result.max_title}
@@ -165,7 +174,7 @@ def peak_day_comparison_chart(result: PredictionResult) -> html.Div:
         y=alt.Y(
             "kw:Q",
             title="kW",
-            scale=alt.Scale(domain=[0, POWER_AXIS_MAX]),
+            scale=alt.Scale(domain=[0, y_axis_max]),
         ),
         color=alt.Color(
             "profile:N",

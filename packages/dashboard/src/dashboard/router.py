@@ -31,6 +31,11 @@ ROUTES: list[Route] = [
         path="/sample-uncertainty",
         name="Location prediction with uncertainty",
     ),
+    Route(
+        module="dashboard.latent_curve_model.pages.heatmap",
+        path="/heatmap",
+        name="Demand heatmap",
+    ),
     *(
         [
             Route(

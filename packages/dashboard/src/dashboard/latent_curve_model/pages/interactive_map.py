@@ -5,6 +5,8 @@ from dash_pydantic_form import ModelForm
 from latentcurvemodel import extract_charger_spatial_features
 
 from dashboard.latent_curve_model.charts import (
+    DC_POWER_AXIS_MAX,
+    POWER_AXIS_MAX,
     peak_day_comparison_chart,
     power_curve_chart,
     profile_mixture_chart,
@@ -66,6 +68,11 @@ def _prediction_view(parsed: FormModel):
         month_name=parsed.time.month,
         weekday_name=parsed.time.weekday,
     )
+    y_axis_max = (
+        DC_POWER_AXIS_MAX
+        if parsed.charger.charging_type == "DC"
+        else POWER_AXIS_MAX
+    )
 
     return dmc.ScrollArea(
         dmc.Container(
@@ -74,7 +81,10 @@ def _prediction_view(parsed: FormModel):
                     Card(
                         "tabler:bolt",
                         "Average hourly power",
-                        power_curve_chart(result),
+                        power_curve_chart(
+                            result,
+                            y_axis_max=y_axis_max,
+                        ),
                     ),
                     dmc.SimpleGrid(
                         [
@@ -99,7 +109,10 @@ def _prediction_view(parsed: FormModel):
                             Card(
                                 "tabler:chart-bar",
                                 "Peak-day comparison",
-                                peak_day_comparison_chart(result),
+                                peak_day_comparison_chart(
+                                    result,
+                                    y_axis_max=y_axis_max,
+                                ),
                             ),
                             Card(
                                 "tabler:layers-intersect",

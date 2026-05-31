@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from functools import lru_cache
-from typing import NamedTuple, Optional
+from typing import Optional
 
 import altair as alt
 import dash_mantine_components as dmc
@@ -18,6 +18,8 @@ from latentcurvemodel import (
     Station,
     Temporal,
 )
+from pyproj import Transformer
+from shapely.geometry import Point
 
 from dashboard.latent_curve_model.forms import (
     DAYS,
@@ -48,12 +50,14 @@ SUBMIT_ID = "su-submit"
 TAB_PREDICTION = "prediction"
 TAB_PREVIEW = "preview"
 
-EARTH_R_M = 6_371_000.0
-
-
-class Sample(NamedTuple):
-    lat: float
-    lng: float
+WGS84_CRS = "EPSG:4326"
+SAMPLING_CRS = "EPSG:5514"
+_TO_SAMPLING_CRS = Transformer.from_crs(
+    WGS84_CRS, SAMPLING_CRS, always_xy=True
+)
+_FROM_SAMPLING_CRS = Transformer.from_crs(
+    SAMPLING_CRS, WGS84_CRS, always_xy=True
+)
 
 
 def _seed_from_coord(
@@ -71,7 +75,7 @@ def _poisson_disk(
     radius_m: float,
     n: int,
     seed: Optional[int] = None,
-) -> list[Sample]:
+) -> list[Point]:
     if seed is None:
         seed = _seed_from_coord(center_lat, center_lng, n, radius_m)
     rng = np.random.default_rng(seed)
@@ -81,9 +85,11 @@ def _poisson_disk(
     min_dist_m = 0.7 * radius_m / math.sqrt(max(n, 1))
     min_dist_sq = min_dist_m * min_dist_m
 
-    cos_lat = math.cos(math.radians(center_lat))
+    center_x, center_y = _TO_SAMPLING_CRS.transform(
+        center_lng, center_lat
+    )
 
-    samples: list[Sample] = []
+    samples: list[Point] = []
     accepted_xy: list[tuple[float, float]] = []
 
     max_attempts = 30 * n
@@ -104,18 +110,11 @@ def _poisson_disk(
         if not ok:
             continue
         accepted_xy.append((x, y))
-        d_lat = y / EARTH_R_M
-        d_lng = x / (EARTH_R_M * cos_lat)
-        samples.append(
-            Sample(
-                lat=center_lat + math.degrees(d_lat),
-                lng=center_lng + math.degrees(d_lng),
-            )
+        lng, lat = _FROM_SAMPLING_CRS.transform(
+            center_x + x, center_y + y
         )
+        samples.append(Point(lng, lat))
     return samples
-
-
-_stratified_disk = _poisson_disk
 
 
 def _disk_polygon(
@@ -124,17 +123,19 @@ def _disk_polygon(
     radius_m: float,
     n_vertices: int = 64,
 ) -> dict:
-    cos_lat = math.cos(math.radians(center_lat))
+    center_x, center_y = _TO_SAMPLING_CRS.transform(
+        center_lng, center_lat
+    )
     coords = []
     for i in range(n_vertices + 1):
         a = 2 * math.pi * i / n_vertices
-        d_lat = (radius_m * math.sin(a)) / EARTH_R_M
-        d_lng = (radius_m * math.cos(a)) / (EARTH_R_M * cos_lat)
         coords.append(
-            [
-                center_lng + math.degrees(d_lng),
-                center_lat + math.degrees(d_lat),
-            ]
+            list(
+                _FROM_SAMPLING_CRS.transform(
+                    center_x + radius_m * math.cos(a),
+                    center_y + radius_m * math.sin(a),
+                )
+            )
         )
     return {
         "type": "FeatureCollection",
@@ -181,10 +182,10 @@ def _predict_cached(fp: tuple) -> tuple[np.ndarray, np.ndarray]:
         month_name,
         weekday_name,
     ) = fp
-    samples = _stratified_disk(lat, lng, radius_m, n_samples)
+    samples = _poisson_disk(lat, lng, radius_m, n_samples)
     requests = [
         PredictionRequest(
-            spatial=Spatial(lon=s.lng, lat=s.lat),
+            spatial=Spatial(lon=s.x, lat=s.y),
             station=Station(
                 charging_type=charging_type,
                 n_ac_siblings=n_ac,
@@ -413,7 +414,7 @@ def _card(icon: str, title: str, body):
 
 
 def _initial_layers(parsed: SamplingFormModel) -> list[dict]:
-    samples = _stratified_disk(
+    samples = _poisson_disk(
         parsed.loc.location.lat,
         parsed.loc.location.lng,
         parsed.sampling.radius_m,
@@ -432,7 +433,7 @@ def _initial_layers(parsed: SamplingFormModel) -> list[dict]:
                 "properties": {"i": i},
                 "geometry": {
                     "type": "Point",
-                    "coordinates": [s.lng, s.lat],
+                    "coordinates": [s.x, s.y],
                 },
             }
             for i, s in enumerate(samples)

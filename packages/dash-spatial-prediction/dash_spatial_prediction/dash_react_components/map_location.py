@@ -98,7 +98,7 @@ class MapLocationField(BaseField):
     zoom: int = Field(default=13)
     height: str = Field(default="400px")
     map_style: str = Field(
-        default="https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+        default="https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json",
     )
 
     def _render(

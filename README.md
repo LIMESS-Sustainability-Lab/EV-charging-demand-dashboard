@@ -1,4 +1,4 @@
-# Charging Demand Interactive Dashboard
+# Urban EV Charging Demand Dashboard
 ![status](https://uptime-monitor.jakubzika.com/badge/charging-model-public/status)
 [![DOI](https://zenodo.org/badge/1231152215.svg)](https://doi.org/10.5281/zenodo.20071167)
 

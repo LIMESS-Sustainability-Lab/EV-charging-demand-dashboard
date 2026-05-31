@@ -25,6 +25,16 @@ Allows seleting a point in map, time slot, charging point and charging station, 
 
 To mitigate low spatial autocorrelation. It samples specified number of locations, which are then turned into predictions. Presents the predictions with uncertainty bound.
 
+### Demand heatmap
+
+Renders Prague-wide demand from the `LatentCurveModel` precomputed grid artifact. The page generates static raster-style Python plots rather than interactive map tiles:
+
+- daily total kWh heatmap, with optional log color scale
+- latent profile contribution heatmaps
+- learned latent profile curves
+
+The page expects the installed `latentcurvemodel` package to expose `GridHeatmapPredictor` and the packaged `prague_grid_raw.parquet` / `prague_grid_meta.json` artifacts.
+
 ## Contributing
 
 For questions or support, contact the author at `zikajak3@fel.cvut.cz`
@@ -36,4 +46,3 @@ This project is licensed under the MIT License. See the LICENSE file for details
 ## Development
 
 For development documentation, please reffer to [development docs](docs/DEVELOPMENT.md)
-
